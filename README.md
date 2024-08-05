@@ -1,1 +1,552 @@
+# Collections Framework Design Document (Version 1)
 
+> Goal: Re-create the Java Collections Framework but add my own features to make it more efficient.
+> 
+
+### Table
+
+- Class (Green)
+- Interface (Blue)
+- Methods (Red)
+- `Collection`
+    
+    ## Creation of Collections
+    
+    - `emptyList()`: Returns an empty `List` (immutable).
+    - `emptySet()`: Returns an empty `Set` (immutable).
+    - `emptyMap()`: Returns an empty `Map` (immutable).
+    - `singletonList(E o)`: Returns an immutable list containing only the specified object.
+    - `singleton(E o)`: Returns an immutable set containing only the specified object.
+    - `singletonMap(K key, V value)`: Returns an immutable map containing a single key-value pair.
+    - `nCopies(int n, T o)`: Returns an immutable list consisting of `n` copies of the specified object.
+    
+    ## Utility Methods for Lists
+    
+    - `sort(List<T> list)`: Sorts the specified list into ascending order, according to the natural ordering of its elements.
+    - `sort(List<T> list, Comparator<? super T> c)`: Sorts the specified list according to the order induced by the specified comparator.
+    - `binarySearch(List<? extends Comparable<? super T>> list, T key)`: Searches the specified list for the specified object using binary search.
+    - `binarySearch(List<? extends T> list, T key, Comparator<? super T> c)`: Searches the specified list for the specified object using binary search with a comparator.
+    - `reverse(List<?> list)`: Reverses the order of the elements in the specified list.
+    - `shuffle(List<?> list)`: Randomly permutes the elements in the specified list using a default source of randomness.
+    - `shuffle(List<?> list, Random rnd)`: Randomly permutes the elements in the specified list using the specified source of randomness.
+    - `fill(List<? super T> list, T obj)`: Replaces all of the elements of the specified list with the specified element.
+    - `copy(List<? super T> dest, List<? extends T> src)`: Copies all of the elements from one list into another.
+    - `swap(List<?> list, int i, int j)`: Swaps the elements at the specified positions in the specified list.
+    
+    ## Utility Methods for Sets
+    
+    - `newSetFromMap(Map<E, Boolean> map)`: Returns a set backed by the specified map.
+    
+    ## Utility Methods for Maps
+    
+    - `frequency(Collection<?> c, Object o)`: Returns the number of occurrences of the specified element in the specified collection.
+    - `disjoint(Collection<?> c1, Collection<?> c2)`: Returns `true` if the two specified collections have no elements in common.
+    - `unmodifiableCollection(Collection<? extends T> c)`: Returns an unmodifiable view of the specified collection.
+    - `unmodifiableList(List<? extends T> list)`: Returns an unmodifiable view of the specified list.
+    - `unmodifiableSet(Set<? extends T> s)`: Returns an unmodifiable view of the specified set.
+    - `unmodifiableMap(Map<? extends K, ? extends V> m)`: Returns an unmodifiable view of the specified map.
+    - `synchronizedCollection(Collection<T> c)`: Returns a synchronized (thread-safe) collection backed by the specified collection.
+    - `synchronizedList(List<T> list)`: Returns a synchronized (thread-safe) list backed by the specified list.
+    - `synchronizedSet(Set<T> s)`: Returns a synchronized (thread-safe) set backed by the specified set.
+    - `synchronizedMap(Map<K, V> m)`: Returns a synchronized (thread-safe) map backed by the specified map.
+    
+    ## Specialized Views and Wrappers
+    
+    - `checkedCollection(Collection<T> c, Class<T> type)`: Returns a dynamically type-safe view of the specified collection.
+    - `checkedList(List<T> list, Class<T> type)`: Returns a dynamically type-safe view of the specified list.
+    - `checkedSet(Set<T> s, Class<T> type)`: Returns a dynamically type-safe view of the specified set.
+    - `checkedMap(Map<K, V> m, Class<K> keyType, Class<V> valueType)`: Returns a dynamically type-safe view of the specified map.
+    
+    ## Other Utility Methods
+    
+    - `asLifoQueue(Deque<T> deque)`: Returns a view of the specified deque as a `Queue` with last-in-first-out (LIFO) semantics.
+    - `enumeration(Collection<T> c)`: Returns an enumeration over the specified collection.
+    - `list(Enumeration<T> e)`: Returns a list containing the elements returned by the specified enumeration.
+- `Collection`
+    - Abstract Methods
+        
+        ### Basic Operations
+        
+        - `boolean add(E e);` Adds the specified element to the collection.
+        - `boolean remove(Object o);` Removes the specified element from the collection.
+        - `boolean contains(Object o);` Checks if the collection contains the specified element.
+        - `boolean isEmpty();` Checks if the collection is empty.
+        - `int size();` Returns the number of elements in the collection.
+        - `void clear();` Remove all elements from the collection.
+        
+        ### Bulk Operations
+        
+        - `boolean addAll(Collection<? extends E> c);` Adds all elements from the specified collection to this collection.
+        - `boolean removeAll(Collection<?> c);` Removes all elements in this collection that are also in the specified collection.
+        - `boolean retainAll(Collection<?> c);` Retains only the elements in this collection that are contained in the specified collection.
+        - `boolean containsAll(Collection<?> c);` Checks if this collection contains all elements in the specified collection.
+        
+        ### Array Operations
+        
+        - `Object[] toArray();` Returns an array containing all elements in the collection.
+        - `<T> T[] toArray(T[] a);` Returns an array containing all elements in the collection; the runtime type of the returned array is that of the specified array.
+        
+        ### Iteration
+        
+        - `Iterator<E> iterator();` Returns an iterator over the elements in the collection.
+    - Core Subinterfaces, Classes, and Methods
+        
+        From the `Collection` interface, several key subinterfaces are defined:
+        
+        - `List`: Represents an ordered collection (sequence) that can contain duplicate elements. Lists allow precise control over where each element is inserted and can access elements by their integer index.
+            - Abstract Methods
+                - **`E get(int index);`**
+                    - Description: Retrieves the element at the specified position in the list.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `List<E>`.
+                - `E set(int index, E element);`
+                    - Description: Replaces the element at the specified position in the list with the specified element.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `List<E>`.
+                - `void add(int index, E element);`
+                    - Description: Inserts the specified element at the specified position in the list.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `List<E>`.
+                - `E remove(int index);`
+                    - Description: Removes the element at the specified position in the list.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `List<E>`.
+                - `int indexOf(Object o);`
+                    - Description: Returns the index of the first occurrence of the specified element in the list, or -1 if the list does not contain the element.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `List<E>`.
+                - `int lastIndexOf(Object o);`
+                    - Description: Returns the index of the last occurrence of the specified element in the list, or -1 if the list does not contain the element.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `List<E>`.
+                - `List<E> subList(int fromIndex, int toIndex);`
+                    - Description: Returns a view of the portion of the list between the specified `fromIndex`, inclusive, and `toIndex`, exclusive.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `List<E>`.
+            - `ArrayList`: A resizable array implementation of the `List` interface. Provides fast random access and is not synchronized.
+            - `LinkedList`: A doubly-linked list implementation of the `List` interface. Provides better performance for insertions and deletions.
+            - `Vector`: A synchronized, resizable array implementation of the `List` interface. Historically used, but now often replaced by `ArrayList`.
+            - `Stack`: A subclass of `Vector` that represents a last-in, first-out stack of objects.
+        - `Set`: Represents a collection that does not allow duplicate elements. It models the mathematical set abstraction.
+            - Abstract Methods
+                - `boolean add(E e);`
+                    - Description: Adds the specified element to the set if it is not already present.
+                    - Inherited From: `Collection<E>`
+                - `boolean remove(Object o);`
+                    - Description: Removes the specified element from the set if it is present.
+                    - Inherited From: `Collection<E>`
+                - `boolean contains(Object o);`
+                    - Description: Returns `true` if the set contains the specified element.
+                    - Inherited From: `Collection<E>`
+                - `boolean isEmpty();`
+                    - Description: Returns `true` if the set contains no elements.
+                    - Inherited From: `Collection<E>`
+                - `int size();`
+                    - Description: Returns the number of elements in the set.
+                    - Inherited From: `Collection<E>`
+                - `void clear();`
+                    - Description: Removes all elements from the set.
+                    - Inherited From: `Collection<E>`
+                - `boolean addAll(Collection<? extends E> c);`
+                    - Description: Adds all elements from the specified collection to this set.
+                    - Inherited From: `Collection<E>`
+                - `boolean removeAll(Collection<?> c);`
+                    - Description: Removes all elements in this set that are also in the specified collection.
+                    - Inherited From: `Collection<E>`
+                - `boolean retainAll(Collection<?> c);`
+                    - Description: Retains only the elements in this set that are contained in the specified collection.
+                    - Inherited From: `Collection<E>`
+                - `boolean containsAll(Collection<?> c);`
+                    - Description: Returns `true` if this set contains all elements in the specified collection.
+                    - Inherited From: `Collection<E>`
+                - `Object[] toArray();`
+                    - Description: Returns an array containing all elements in the set.
+                    - Inherited From: `Collection<E>`
+                - `<T> T[] toArray(T[] a);`
+                    - Description: Returns an array containing all elements in the set; the runtime type of the returned array is that of the specified array.
+                    - Inherited From: `Collection<E>`
+                - `Iterator<E> iterator();`
+                    - Description: Returns an iterator over the elements in the set.
+                    - Inherited From: `Collection<E>`
+            - `HashSet`: A hash table-based implementation of the `Set` interface. It does not guarantee any specific order of elements.
+            - `LinkedHashSet`: A hash table and linked list implementation of the `Set` interface. Maintains insertion order.
+            - `SortedSet`: A `Set` that maintains its elements in ascending order.
+                - Abstract Methods
+                    - `boolean add(E e);`
+                        - Description: Adds the specified element to the set if it is not already present.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `boolean remove(Object o);`
+                        - Description: Removes the specified element from the set if it is present.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `boolean contains(Object o);`
+                        - Description: Returns `true` if the set contains the specified element.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `boolean isEmpty();`
+                        - Description: Returns `true` if the set contains no elements.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `int size();`
+                        - Description: Returns the number of elements in the set.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `void clear();`
+                        - Description: Removes all elements from the set.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `boolean addAll(Collection<? extends E> c);`
+                        - Description: Adds all elements from the specified collection to this set.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `boolean removeAll(Collection<?> c);`
+                        - Description: Removes all elements in this set that are also in the specified collection.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `boolean retainAll(Collection<?> c);`
+                        - Description: Retains only the elements in this set that are contained in the specified collection.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `boolean containsAll(Collection<?> c);`
+                        - Description: Returns `true` if this set contains all elements in the specified collection.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `Object[] toArray();`
+                        - Description: Returns an array containing all elements in the set.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `<T> T[] toArray(T[] a);`
+                        - Description: Returns an array containing all elements in the set; the runtime type of the returned array is that of the specified array.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `Iterator<E> iterator();`
+                        - Description: Returns an iterator over the elements in the set.
+                        - Inherited From: `Set<E>`, which inherits from `Collection<E>`
+                    - `Comparator<? super E> comparator();`
+                        - Description: Returns the comparator used to order the elements in this set, or `null` if this set uses the natural ordering of its elements.
+                        - Inherited From: Not inherited from `Set<E>`; specific to `SortedSet<E>`.
+                    - `E first();`
+                        - Description: Returns the first (lowest) element currently in the set.
+                        - Inherited From: Not inherited from `Set<E>`; specific to `SortedSet<E>`.
+                    - `E last();`
+                        - Description: Returns the last (highest) element currently in the set.
+                        - Inherited From: Not inherited from `Set<E>`; specific to `SortedSet<E>`.
+                    - `SortedSet<E> headSet(E toElement);`
+                        - Description: Returns a view of the portion of this set whose elements are strictly less than `toElement`.
+                        - Inherited From: Not inherited from `Set<E>`; specific to `SortedSet<E>`.
+                    - `SortedSet<E> subSet(E fromElement, E toElement);`
+                        - Description: Returns a view of the portion of this set between `fromElement`, inclusive, and `toElement`, exclusive.
+                        - Inherited From: Not inherited from `Set<E>`; specific to `SortedSet<E>`.
+                    - `SortedSet<E> tailSet(E fromElement);`
+                        - Description: Returns a view of the portion of this set whose elements are greater than or equal to `fromElement`.
+                        - Inherited From: Not inherited from `Set<E>`; specific to `SortedSet<E>`.
+                - `NavigableSet`: A `SortedSet` with navigation methods that return the closest matches for given search targets.
+                    - Abstract Methods
+                        - `Comparator<? super E> comparator();`
+                            - Description: Returns the comparator used to order the elements in this set, or `null` if this set uses the natural ordering of its elements.
+                            - Inherited From: `SortedSet<E>`, which inherits from `Set<E>`
+                        - `E first();`
+                            - Description: Returns the first (lowest) element currently in the set.
+                            - Inherited From: `SortedSet<E>`, which inherits from `Set<E>`
+                        - `E last();`
+                            - Description: Returns the last (highest) element currently in the set.
+                            - Inherited From: `SortedSet<E>`, which inherits from `Set<E>`
+                        - `SortedSet<E> headSet(E toElement);`
+                            - Description: Returns a view of the portion of this set whose elements are strictly less than `toElement`.
+                            - Inherited From: `SortedSet<E>`, which inherits from `Set<E>`
+                        - `SortedSet<E> subSet(E fromElement, E toElement);`
+                            - Description: Returns a view of the portion of this set between `fromElement`, inclusive, and `toElement`, exclusive.
+                            - Inherited From: `SortedSet<E>`, which inherits from `Set<E>`
+                        - `SortedSet<E> tailSet(E fromElement);`
+                            - Description: Returns a view of the portion of this set whose elements are greater than or equal to `fromElement`.
+                            - Inherited From: `SortedSet<E>`, which inherits from `Set<E>`
+                        - `E lower(E e);`
+                            - Description: Returns the greatest element in this set strictly less than the given element, or `null` if there is no such element.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`.
+                        - `E floor(E e);`
+                            - Description: Returns the greatest element in this set less than or equal to the given element, or `null` if there is no such element.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`.
+                        - `E ceiling(E e);`
+                            - Description: Returns the least element in this set greater than or equal to the given element, or `null` if there is no such element.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`.
+                        - `E higher(E e);`
+                            - Description: Returns the least element in this set strictly greater than the given element, or `null` if there is no such element.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`.
+                        - `E pollFirst();`
+                            - Description: Retrieves and removes the first (lowest) element, or returns `null` if this set is empty.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`.
+                        - `E pollLast();`
+                            - Description: Retrieves and removes the last (highest) element, or returns `null` if this set is empty.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`.
+                        - `NavigableSet<E> descendingSet();`
+                            - Description: Returns a reverse order view of the elements contained in this set.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`.
+                        - `Iterator<E> descendingIterator();`
+                            - Description: Returns an iterator over the elements in this set in descending order.
+                            - Inherited From: Not inherited from `SortedSet<E>`; specific to `NavigableSet<E>`
+                    - `TreeSet`: Implements `NavigableSet`, providing navigational methods and sorted ordering.
+        - `Queue`: Represents a collection designed for holding elements prior to processing. It supports various operations like insertion, removal, and inspection.
+            - Abstract methods
+                - `boolean add(E e);`
+                    - Description: Adds the specified element to the queue.
+                    - Inherited From: `Collection<E>`
+                - `boolean remove(Object o);`
+                    - Description: Removes the specified element from the queue if it is present.
+                    - Inherited From: `Collection<E>`
+                - `boolean contains(Object o);`
+                    - Description: Returns `true` if the queue contains the specified element.
+                    - Inherited From: `Collection<E>`
+                - `boolean isEmpty();`
+                    - Description: Returns `true` if the queue contains no elements.
+                    - Inherited From: `Collection<E>`
+                - `int size();`
+                    - Description: Returns the number of elements in the queue.
+                    - Inherited From: `Collection<E>`
+                - `void clear();`
+                    - Description: Removes all elements from the queue.
+                    - Inherited From: `Collection<E>`
+                - `boolean addAll(Collection<? extends E> c);`
+                    - Description: Adds all elements from the specified collection to this queue.
+                    - Inherited From: `Collection<E>`
+                - `boolean removeAll(Collection<?> c);`
+                    - Description: Removes all elements in this queue that are also in the specified collection.
+                    - Inherited From: `Collection<E>`
+                - `boolean retainAll(Collection<?> c);`
+                    - Description: Retains only the elements in this queue that are contained in the specified collection.
+                    - Inherited From: `Collection<E>`
+                - `boolean containsAll(Collection<?> c);`
+                    - Description: Returns `true` if this queue contains all elements in the specified collection.
+                    - Inherited From: `Collection<E>`
+                - `Object[] toArray();`
+                    - Description: Returns an array containing all elements in the queue.
+                    - Inherited From: `Collection<E>`
+                - `<T> T[] toArray(T[] a);`
+                    - Description: Returns an array containing all elements in the queue; the runtime type of the returned array is that of the specified array.
+                    - Inherited From: `Collection<E>`
+                - `Iterator<E> iterator();`
+                    - Description: Returns an iterator over the elements in the queue.
+                    - Inherited From: `Collection<E>`
+                - `boolean offer(E e);`
+                    - Description: Inserts the specified element into the queue if it is possible to do so immediately without violating capacity restrictions.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `Queue<E>`.
+                - `E remove();`
+                    - Description: Retrieves and removes the head of the queue.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `Queue<E>`.
+                - `E poll();`
+                    - Description: Retrieves and removes the head of the queue, or returns `null` if the queue is empty.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `Queue<E>`.
+                - `E peek();`
+                    - Description: Retrieves, but does not remove, the head of the queue.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `Queue<E>`.
+                - `E element();`
+                    - Description: Retrieves, but does not remove, the head of the queue.
+                    - Inherited From: Not inherited from `Collection<E>`; specific to `Queue<E>`.
+            - `PriorityQueue`: An implementation of the `Queue` interface that provides a priority ordering of elements.
+            - `Deque`: Represents a double-ended queue that supports element insertion and removal at both ends.
+                - Abstract Methods
+                    - `boolean offer(E e);`
+                        - Description: Inserts the specified element into the queue if it is possible to do so immediately without violating capacity restrictions.
+                        - Inherited From: `Queue<E>`, which inherits from `Collection<E>`
+                    - `E remove();`
+                        - Description: Retrieves and removes the head of the queue.
+                        - Inherited From: `Queue<E>`, which inherits from `Collection<E>`
+                    - `E poll();`
+                        - Description: Retrieves and removes the head of the queue, or returns `null` if the queue is empty.
+                        - Inherited From: `Queue<E>`, which inherits from `Collection<E>`
+                    - `E peek();`
+                        - Description: Retrieves, but does not remove, the head of the queue.
+                        - Inherited From: `Queue<E>`, which inherits from `Collection<E>`
+                    - `E element();`
+                        - Description: Retrieves, but does not remove, the head of the queue.
+                        - Inherited From: `Queue<E>`, which inherits from `Collection<E>`
+                    - `void addFirst(E e);`
+                        - Description: Inserts the specified element at the front of the deque.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `void addLast(E e);`
+                        - Description: Inserts the specified element at the end of the deque.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `boolean offerFirst(E e);`
+                        - Description: Inserts the specified element at the front of the deque if possible.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `boolean offerLast(E e);`
+                        - Description: Inserts the specified element at the end of the deque if possible.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E removeFirst();`
+                        - Description: Retrieves and removes the first element of the deque.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E removeLast();`
+                        - Description: Retrieves and removes the last element of the deque.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E pollFirst();`
+                        - Description: Retrieves and removes the first element of the deque, or returns `null` if the deque is empty.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E pollLast();`
+                        - Description: Retrieves and removes the last element of the deque, or returns `null` if the deque is empty.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E getFirst();`
+                        - Description: Retrieves, but does not remove, the first element of the deque.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E getLast();`
+                        - Description: Retrieves, but does not remove, the last element of the deque.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E peekFirst();`
+                        - Description: Retrieves, but does not remove, the first element of the deque, or returns `null` if the deque is empty.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `E peekLast();`
+                        - Description: Retrieves, but does not remove, the last element of the deque, or returns `null` if the deque is empty.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                    - `Iterator<E> descendingIterator();`
+                        - Description: Returns an iterator over the elements in the deque in reverse order.
+                        - Inherited From: Not inherited from `Queue<E>`; specific to `Deque<E>`.
+                - `ArrayDeque`: A resizable array implementation of the `Deque` interface.
+                - `LinkedList`: Implements both `List` and `Deque` interfaces, allowing it to be used as a double-ended queue.
+- `Map`
+    - Abstract Methods
+        - `V put(K key, V value);`
+            - Description: Associates the specified value with the specified key in the map. If the map previously contained a mapping for the key, the old value is replaced by the specified value.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `V get(Object key);`
+            - Description: Returns the value to which the specified key is mapped, or `null` if this map contains no mapping for the key.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `V remove(Object key);`
+            - Description: Removes the mapping for a key from this map if it is present.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `boolean containsKey(Object key);`
+            - Description: Returns `true` if this map contains a mapping for the specified key.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `boolean containsValue(Object value);`
+            - Description: Returns `true` if this map maps one or more keys to the specified value.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `void clear();`
+            - Description: Removes all mappings from the map.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `boolean isEmpty();`
+            - Description: Returns `true` if the map contains no key-value mappings.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `int size();`
+            - Description: Returns the number of key-value mappings in the map.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `Set<K> keySet();`
+            - Description: Returns a set view of the keys contained in this map.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `Collection<V> values();`
+            - Description: Returns a collection view of the values contained in this map.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `Set<Map.Entry<K, V>> entrySet();`
+            - Description: Returns a set view of the mappings contained in this map.
+            - Inherited From: Not inherited from `Collection<E>`; specific to `Map<K, V>`.
+        - `boolean equals(Object obj);`
+            - Description: Compares the specified object with this map for equality.
+            - Inherited From: Not inherited from `Collection<E>`; inherited from `Object`.
+        - `int hashCode();`
+            - Description: Returns the hash code value for this map.
+            - Inherited From: Not inherited from `Collection<E>`; inherited from `Object`.
+        - `String toString();`
+            - Description: Returns a string representation of this map.
+            - Inherited From: Not inherited from `Collection<E>`; inherited from `Object`
+    - Core Subinterfaces, Classes, and Methods
+        - `SortedMap`: Extends `Map` and provides additional methods for maintaining a sorted order of keys.
+            - Abstract Methods
+                - `V put(K key, V value);`
+                    - Description: Associates the specified value with the specified key in the map. If the map previously contained a mapping for the key, the old value is replaced by the specified value.
+                    - Inherited From: `Map<K, V>`
+                - `V get(Object key);`
+                    - Description: Returns the value to which the specified key is mapped, or `null` if this map contains no mapping for the key.
+                    - Inherited From: `Map<K, V>`
+                - `V remove(Object key);`
+                    - Description: Removes the mapping for a key from this map if it is present.
+                    - Inherited From: `Map<K, V>`
+                - `boolean containsKey(Object key);`
+                    - Description: Returns `true` if this map contains a mapping for the specified key.
+                    - Inherited From: `Map<K, V>`
+                - `boolean containsValue(Object value);`
+                    - Description: Returns `true` if this map maps one or more keys to the specified value.
+                    - Inherited From: `Map<K, V>`
+                - `void clear();`
+                    - Description: Removes all mappings from the map.
+                    - Inherited From: `Map<K, V>`
+                - `boolean isEmpty();`
+                    - Description: Returns `true` if the map contains no key-value mappings.
+                    - Inherited From: `Map<K, V>`
+                - `int size();`
+                    - Description: Returns the number of key-value mappings in the map.
+                    - Inherited From: `Map<K, V>`
+                - `Set<K> keySet();`
+                    - Description: Returns a set view of the keys contained in this map.
+                    - Inherited From: `Map<K, V>`
+                - `Collection<V> values();`
+                    - Description: Returns a collection view of the values contained in this map.
+                    - Inherited From: `Map<K, V>`
+                - `Set<Map.Entry<K, V>> entrySet();`
+                    - Description: Returns a set view of the mappings contained in this map.
+                    - Inherited From: `Map<K, V>`
+                - `Comparator<? super K> comparator();`
+                    - Description: Returns the comparator used to order the keys in this map, or `null` if this map uses the natural ordering of its keys.
+                    - Inherited From: Not inherited from `Map<K, V>`; specific to `SortedMap<K, V>`.
+                - `K firstKey();`
+                    - Description: Returns the first (lowest) key currently in the map.
+                    - Inherited From: Not inherited from `Map<K, V>`; specific to `SortedMap<K, V>`.
+                - `K lastKey();`
+                    - Description: Returns the last (highest) key currently in the map.
+                    - Inherited From: Not inherited from `Map<K, V>`; specific to `SortedMap<K, V>`.
+                - `SortedMap<K, V> headMap(K toKey);`
+                    - Description: Returns a view of the portion of this map whose keys are strictly less than `toKey`.
+                    - Inherited From: Not inherited from `Map<K, V>`; specific to `SortedMap<K, V>`.
+                - `SortedMap<K, V> subMap(K fromKey, K toKey);`
+                    - Description: Returns a view of the portion of this map whose keys range from `fromKey`, inclusive, to `toKey`, exclusive.
+                    - Inherited From: Not inherited from `Map<K, V>`; specific to `SortedMap<K, V>`.
+                - `SortedMap<K, V> tailMap(K fromKey);`
+                    - Description: Returns a view of the portion of this map whose keys are greater than or equal to `fromKey`.
+                    - Inherited From: Not inherited from `Map<K, V>`; specific to `SortedMap<K, V>`.
+            - `NavigableMap`: Extends `SortedMap` and provides methods for navigation and views.
+                - Abstract Method
+                    - `Comparator<? super K> comparator();`
+                        - Description: Returns the comparator used to order the keys in this map, or `null` if this map uses the natural ordering of its keys.
+                        - Inherited From: `SortedMap<K, V>`, which inherits from `Map<K, V>`
+                    - `K firstKey();`
+                        - Description: Returns the first (lowest) key currently in the map.
+                        - Inherited From: `SortedMap<K, V>`, which inherits from `Map<K, V>`
+                    - `K lastKey();`
+                        - Description: Returns the last (highest) key currently in the map.
+                        - Inherited From: `SortedMap<K, V>`, which inherits from `Map<K, V>`
+                    - `SortedMap<K, V> headMap(K toKey);`
+                        - Description: Returns a view of the portion of this map whose keys are strictly less than `toKey`.
+                        - Inherited From: `SortedMap<K, V>`, which inherits from `Map<K, V>`
+                    - `SortedMap<K, V> subMap(K fromKey, K toKey);`
+                        - Description: Returns a view of the portion of this map whose keys range from `fromKey`, inclusive, to `toKey`, exclusive.
+                        - Inherited From: `SortedMap<K, V>`, which inherits from `Map<K, V>`
+                    - `SortedMap<K, V> tailMap(K fromKey);`
+                        - Description: Returns a view of the portion of this map whose keys are greater than or equal to `fromKey`.
+                        - Inherited From: `SortedMap<K, V>`, which inherits from `Map<K, V>`
+                    - `Map.Entry<K, V> lowerEntry(K key);`
+                        - Description: Returns a key-value mapping associated with the greatest key less than the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `K lowerKey(K key);`
+                        - Description: Returns the greatest key less than the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `Map.Entry<K, V> floorEntry(K key);`
+                        - Description: Returns a key-value mapping associated with the greatest key less than or equal to the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `K floorKey(K key);`
+                        - Description: Returns the greatest key less than or equal to the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `Map.Entry<K, V> ceilingEntry(K key);`
+                        - Description: Returns a key-value mapping associated with the smallest key greater than or equal to the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `K ceilingKey(K key);`
+                        - Description: Returns the smallest key greater than or equal to the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `Map.Entry<K, V> higherEntry(K key);`
+                        - Description: Returns a key-value mapping associated with the smallest key greater than the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `K higherKey(K key);`
+                        - Description: Returns the smallest key greater than the specified key, or `null` if there is no such key.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `Map.Entry<K, V> firstEntry();`
+                        - Description: Returns the first (lowest) key-value mapping in the map.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `Map.Entry<K, V> lastEntry();`
+                        - Description: Returns the last (highest) key-value mapping in the map.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `Map.Entry<K, V> pollFirstEntry();`
+                        - Description: Removes and returns the first (lowest) key-value mapping from the map.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `Map.Entry<K, V> pollLastEntry();`
+                        - Description: Removes and returns the last (highest) key-value mapping from the map.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                    - `NavigableMap<K, V> descendingMap();`
+                        - Description: Returns a reverse order view of the mappings contained in this map.
+                        - Inherited From: Not inherited from `SortedMap<K, V>`; specific to `NavigableMap<K, V>`.
+                - `TreeMap`: Implements `NavigableMap` and `SortedMap`. Provides a red-black tree-based implementation that maintains a sorted order.
+        - `HashMap`: Implements `Map`. Provides a hash table-based implementation. It does not maintain any order.
+            - `LinkedHashMap`: Extends `HashMap` and maintains insertion order or access order.
+        - `WeakHashMap`: Implements `Map`. Provides a hash table-based implementation with weak keys, which allows keys to be garbage-collected when no longer in use.
+
+(Updates made in Version 2): 
+
+- Make accessing certain elements faster (Faster Hashing Algorithm)
+    - For Hashing Collision See if you can implement a faster Method (Using a tree)
+- Implementing New Data Structures Like Graphs, and Trees (Heap, Red Black Tree, and Binary Search Tree)
+- Implement new Sorting Algorithms inside the Collections class to allow users with a wide variety of options.
